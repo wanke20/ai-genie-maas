@@ -9,7 +9,7 @@ const endpoint = "https://ssrvcs-apim-dev-use-01.azure-api.net";
 const apiKey = "d1c3b9ea73ca43c9b06bb1c01117c845";
 const apiVersion = "2025-01-01-preview";
 
-const deployments = ["gpt-4o", "gpt-4o-mini"]; // Add "claude-..." if supported
+const deployments = ["gpt-4o", "gpt-4o-mini"];
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
