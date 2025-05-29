@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Model Chat</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #chat-box { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+    .user { font-weight: bold; }
+    .model { margin-left: 20px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>Multi-Model Chat</h2>
+  <div id="chat-box"></div>
+  <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%;">
+  <button onclick="sendMessage()">Send</button>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      appendMessage("You", message);
+      input.value = "";
+
+      const response = await fetch("/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+      for (const [model, reply] of Object.entries(data)) {
+        appendMessage(model, reply);
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const chatBox = document.getElementById("chat-box");
+      const div = document.createElement("div");
+      div.className = sender === "You" ? "user" : "model";
+      div.textContent = `${sender}: ${text}`;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  </script>
+</body>
+</html>
+
+<!-- <!DOCTYPE html>
+<html>
+  <head><title>Test</title></head>
+  <body>
+    <h1>Hello, world!</h1>
+  </body>
+</html> -->
