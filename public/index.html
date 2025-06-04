@@ -4,17 +4,66 @@
   <meta charset="UTF-8">
   <title>Multi-Model Chat</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    #chat-box { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
-    .user { font-weight: bold; }
-    .model { margin-left: 20px; white-space: pre-wrap; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    #input-section {
+      margin-top: 20px;
+    }
+
+    #chat-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .chat-box {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 10px;
+      height: 400px;
+      overflow-y: scroll;
+    }
+
+    .chat-box h3 {
+      margin-top: 0;
+      text-align: center;
+      background: #f5f5f5;
+      padding: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .message {
+      white-space: pre-wrap;
+      margin-bottom: 10px;
+    }
+
+    .user strong {
+      font-weight: bold;
+      color: #333;
+    }
   </style>
 </head>
 <body>
   <h2>Multi-Model Chat</h2>
-  <div id="chat-box"></div>
-  <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%;">
-  <button onclick="sendMessage()">Send</button>
+
+  <div id="chat-container">
+    <div id="claude-box" class="chat-box">
+      <h3>Claude</h3>
+    </div>
+    <div id="gpt4o-box" class="chat-box">
+      <h3>GPT-4o</h3>
+    </div>
+    <div id="gpt4omini-box" class="chat-box">
+      <h3>GPT-4o-mini</h3>
+    </div>
+  </div>
+
+  <div id="input-section">
+    <input type="text" id="user-input" placeholder="Type your message..." style="width: 70%;">
+    <button onclick="sendMessage()">Send</button>
+  </div>
 
   <script>
     async function sendMessage() {
@@ -22,8 +71,13 @@
       const message = input.value.trim();
       if (!message) return;
 
-      appendMessage("You", message);
+      // Clear input
       input.value = "";
+
+      // Bold user message
+      appendMessage("claude-box", `<strong>You: ${message} </strong>`);
+      appendMessage("gpt4o-box", `<strong>You: ${message} </strong>`);
+      appendMessage("gpt4omini-box", `<strong>You: ${message} </strong>`);
 
       const response = await fetch("/chat", {
         method: "POST",
@@ -34,18 +88,33 @@
       });
 
       const data = await response.json();
-      for (const [model, reply] of Object.entries(data)) {
-        appendMessage(model, reply);
-      }
+
+      appendMessage("claude-box", `Claude: ${sanitize(data["claude-3-7-sonnet-20250219"] || "Error or no response")}`);
+      appendMessage("gpt4o-box", `GPT-4o: ${sanitize(data["gpt-4o"] || "Error or no response")}`);
+      appendMessage("gpt4omini-box", `GPT-4o-mini: ${sanitize(data["gpt-4o-mini"] || "Error or no response")}`);
     }
 
-    function appendMessage(sender, text) {
-      const chatBox = document.getElementById("chat-box");
+    function appendMessage(boxId, htmlText) {
+      const box = document.getElementById(boxId);
       const div = document.createElement("div");
-      div.className = sender === "You" ? "user" : "model";
-      div.textContent = `${sender}: ${text}`;
-      chatBox.appendChild(div);
-      chatBox.scrollTop = chatBox.scrollHeight;
+      div.className = "message";
+      div.innerHTML = htmlText; // Render with bold tags
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sanitize(str) {
+      // Basic HTML sanitization to prevent script injection
+      return str.replace(/[&<>"']/g, function (match) {
+        const escape = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        };
+        return escape[match];
+      });
     }
   </script>
 </body>
