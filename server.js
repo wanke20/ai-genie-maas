@@ -1,13 +1,16 @@
 import express from "express";
 import fetch from "node-fetch";
 import bodyParser from "body-parser";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const app = express();
 const port = 3000;
 
-const endpoint = "https://ssrvcs-apim-dev-use-01.azure-api.net";
-const subscriptionKey = "d1c3b9ea73ca43c9b06bb1c01117c845";
-const apiVersion = "2025-01-01-preview";
+const endpoint = process.env.AZURE_ENDPOINT;
+const subscriptionKey = process.env.AZURE_SUBSCRIPTION_KEY;
+const apiVersion = process.env.AZURE_API_VERSION;
 
 const deployments = [
   "claude-3-7-sonnet-20250219", 

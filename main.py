@@ -11,10 +11,13 @@ claude-3-7-sonnet-20250219
  
 import os
 from openai import AzureOpenAI
+from dotenv import load_dotenv
 
-endpoint = "https://ssrvcs-apim-dev-use-01.azure-api.net"
-subscription_key = "d1c3b9ea73ca43c9b06bb1c01117c845"
-api_version = "2025-01-01-preview"
+load_dotenv()
+
+endpoint = os.getenv("AZURE_ENDPOINT")
+subscription_key = os.getenv("AZURE_SUBSCRIPTION_KEY")
+api_version = os.getenv("AZURE_API_VERSION")
 
 client = AzureOpenAI(
     api_version=api_version,
