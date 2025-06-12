@@ -22,6 +22,7 @@ app.use(express.static("public"));
 app.use(bodyParser.json());
 
 app.post("/chat", async (req, res) => {
+  const instruction = "You are a translator. Indicate the language of the user input and translate into English.";
   const userMessage = req.body.message;
   const results = {};
 
@@ -33,13 +34,16 @@ app.post("/chat", async (req, res) => {
       if (model.startsWith("claude")) {
         payload = {
           model: model,
-          messages: [{ role: "user", content: userMessage }],
+          messages: [
+            { role: "system", content: instruction },
+            { role: "user", content: userMessage }
+          ],
           max_tokens: 1024
         };
       } else {
         payload = {
           messages: [
-            { role: "system", content: "You are a helpful assistant." },
+            { role: "system", content: instruction },
             { role: "user", content: userMessage }
           ],
           max_tokens: 200,
